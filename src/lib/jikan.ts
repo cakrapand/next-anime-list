@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export type Anime = {
-  mal_id: string;
+  mal_id: number;
   title: string;
   images: {
     webp: { image_url: string };
@@ -26,16 +26,19 @@ export type GetTopAnimeResponse = {
 
 export const queryClient = new QueryClient();
 
+//TODO: HANDLE ERROR
 export async function getTopAnime(params: { page: number }) {
-  //TODO: DEFINE DATA RESPONSE
   const response = await fetch(`${BASE_URL}/top/anime?page=${params.page}`);
-
-  if (!response.ok) {
-    const error = new Error("An error occurred while fetching data");
-    throw error;
-  }
 
   const topAnimeResponse = await response.json();
 
   return topAnimeResponse as GetTopAnimeResponse;
+}
+
+export async function getAnimeFullById(params: { animeId: string }) {
+  const response = await fetch(`${BASE_URL}/anime/${params.animeId}/full`);
+
+  const { data } = await response.json();
+
+  return data as Anime;
 }

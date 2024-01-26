@@ -8,56 +8,53 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Anime, GetTopAnimeResponse, getTopAnime } from "@/lib/jikan";
+import {
+  Anime,
+  GetTopAnimeResponse,
+  getAnimeFullById,
+  getTopAnime,
+} from "@/lib/jikan";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/router";
+import Link from "next/link";
+import { useState } from "react";
 
 type Props = {
   initialData: GetTopAnimeResponse;
 };
 
 export default function Home({ initialData }: Props) {
-  const router = useRouter();
-  console.log(router.query);
-
-  const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["animes", 2],
-    queryFn: () => getTopAnime({ page: 2 }),
-    initialData: initialData,
-  });
-
-  if (isError) return <p>Error</p>;
   return (
     <main className="container">
-      {isFetching && <p>Loading...</p>}
-      <ul className="flex flex-wrap justify-evenly">
-        {data.data.map((item) => (
-          <li key={item.mal_id} className="">
-            <AnimeCard anime={item} />
-          </li>
+      {!initialData && <p>Failed Fetching Data</p>}
+      <ul className="grid grid-cols-3 lg:grid-cols-5">
+        {initialData.data.map((item) => (
+          <AnimeCard key={item.mal_id} anime={item} />
         ))}
       </ul>
+
       <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href={`/page/${data.pagination.current_page - 1 < 1 ? 1 : data.pagination.current_page - 1}`}
+              href={`/page/${initialData.pagination.current_page - 1 < 1 ? 1 : initialData.pagination.current_page - 1}`}
             />
           </PaginationItem>
-
           <PaginationItem>
-            <PaginationLink href="#" isActive>
-              {data.pagination.current_page}
+            <PaginationLink
+              href={`/page/${initialData.pagination.current_page}`}
+              isActive
+            >
+              {initialData.pagination.current_page}
             </PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationLink href="#">
-              {data.pagination.current_page + 1}
+              {initialData.pagination.current_page + 1}
             </PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationLink href="#">
-              {data.pagination.current_page + 2}
+              {initialData.pagination.current_page + 2}
             </PaginationLink>
           </PaginationItem>
           <PaginationItem>
@@ -79,6 +76,6 @@ export async function getStaticProps() {
     props: {
       initialData: initialData,
     },
-    revalidate: 1800,
+    revalidate: 18000,
   };
 }
